@@ -11,40 +11,44 @@ import android.widget.TextView
 import android.widget.Toast
 
 
-class MainActivity : Activity() {
-    var sm: SensorManager? = null
-    var textView1: TextView? = null
+class MainActivity : Activity(),SensorEventListener {
+    lateinit var sensorManager: SensorManager
+    lateinit var textView1: TextView
     var list: List<*>? = null
-    var sel: SensorEventListener = object : SensorEventListener {
-        override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
-        override fun onSensorChanged(event: SensorEvent) {
-            val values = event.values
-            textView1!!.text = """
-                x: ${values[0]}
-                y: ${values[1]}
-                z: ${values[2]}
-                """.trimIndent()
-        }
-    }
+   
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        /* Get a SensorManager instance */sm = getSystemService(SENSOR_SERVICE) as SensorManager
-        textView1 = findViewById<View>(R.id.textView1) as TextView
-        list = sm!!.getSensorList(Sensor.TYPE_ACCELEROMETER)
-        if ((list as MutableList<Sensor>?)!!.size > 0) {
-            sm!!.registerListener(sel, (list as MutableList<Sensor>?)!!.get(0) as Sensor, SensorManager.SENSOR_DELAY_NORMAL)
-        } else {
-            Toast.makeText(baseContext, "Error: No Accelerometer.", Toast.LENGTH_LONG).show()
+       
+        setUpSensorStuff()
+    }
+    private fun setUpSensorStuff(){
+        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER)?.also{
+            sensorManager.registerListener(this,it,SensorManager.SENSOR_DELAY_NORMAL,SensorManager.SENSOR_DELAY_FASTEST)
         }
+    }
+    override fun onSensorChanged(event: SensorEvent) {
+        val values = event.values
+        """
+                        x: ${values[0]}
+                        y: ${values[1]}
+                        z: ${values[2]}
+                        """.trimIndent().also { textView1!!.text = it }
+    }
+
+    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+        TODO("Not yet implemented")
     }
 
     override fun onStop() {
         if (list!!.size > 0) {
-            sm!!.unregisterListener(sel)
+            sensorManager!!.unregisterListener(this)
         }
         super.onStop()
+
     }
 }
+
