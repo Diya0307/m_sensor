@@ -1,6 +1,8 @@
 package com.example.m_sesnor
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -22,7 +24,6 @@ class MainActivity : Activity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         /* Get a SensorManager instance */
         sm = getSystemService(SENSOR_SERVICE) as SensorManager
 
