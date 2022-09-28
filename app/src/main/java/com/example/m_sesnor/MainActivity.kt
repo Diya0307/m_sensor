@@ -11,11 +11,15 @@ import android.widget.TextView
 import android.widget.Toast
 
 
-class MainActivity : Activity() {
+class MainActivity : Activity()
+{
     var sm: SensorManager? = null
     var textView1: TextView? = null
-    var list: List<*>? = null
-    var sel: SensorEventListener = object : SensorEventListener {
+    var textView2: TextView? = null
+    lateinit var list: List<*>
+    lateinit var list2: List<*>
+    var sel: SensorEventListener = object : SensorEventListener
+    {
         override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
         override fun onSensorChanged(event: SensorEvent) {
             val values = event.values
@@ -25,26 +29,55 @@ class MainActivity : Activity() {
                 z: ${values[2]}
                 """.trimIndent()
         }
-    }
 
-    public override fun onCreate(savedInstanceState: Bundle?) {
+    }
+    var sel2: SensorEventListener = object : SensorEventListener
+    {
+        override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
+        override fun onSensorChanged(event: SensorEvent) {
+            val values = event.values
+            textView2!!.text = """
+                x: ${values[0]}
+                y: ${values[1]}
+                z: ${values[2]}
+                """.trimIndent()
+        }
+    }
+    public override fun onCreate(savedInstanceState: Bundle?)
+    {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         /* Get a SensorManager instance */sm = getSystemService(SENSOR_SERVICE) as SensorManager
         textView1 = findViewById<View>(R.id.textView1) as TextView
-        list = sm!!.getSensorList(Sensor.TYPE_ACCELEROMETER)
+        textView2 = findViewById<View>(R.id.textView2) as TextView
+        list = sm!!.getSensorList(Sensor.TYPE_ROTATION_VECTOR)
         if ((list as MutableList<Sensor>?)!!.size > 0) {
             sm!!.registerListener(sel, (list as MutableList<Sensor>?)!!.get(0) as Sensor, SensorManager.SENSOR_DELAY_NORMAL)
         } else {
-            Toast.makeText(baseContext, "Error: No Accelerometer.", Toast.LENGTH_LONG).show()
+            Toast.makeText(baseContext, "Error: No Rotation Vector", Toast.LENGTH_LONG).show()
         }
+
+
     }
 
-    override fun onStop() {
-        if (list!!.size > 0) {
-            sm!!.unregisterListener(sel)
-        }
-        super.onStop()
+    override fun onResume()
+    {
+        list2 = sm!!.getSensorList(Sensor.TYPE_GYROSCOPE)
+           // if ((list2 as MutableList<Sensor>?)!!.size > 0)
+            //{
+                sm!!.registerListener(sel2, (list2 as MutableList<Sensor>?)!!.get(0) as Sensor, SensorManager.SENSOR_DELAY_NORMAL)
+            //} else {
+            //Toast.makeText(baseContext, "Error: No Accelerometer.", Toast.LENGTH_LONG).show()
+        //}
+            super.onResume()
+    }
+    override fun onStop()
+    {
+
+                sm!!.unregisterListener(sel)
+                sm!!.unregisterListener(sel2)
+
+            super.onStop()
     }
 }
